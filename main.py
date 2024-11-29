@@ -2,6 +2,7 @@
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 from PIL import Image, ImageTk
+import popup as popup
 
 def resizeImage(rawImage, ratio=1.0):
     
@@ -20,21 +21,27 @@ def leftClicked(event):
     """ Get mouse click position """
     x,y = canvas.canvasx(event.x), canvas.canvasy(event.y)
     print(">>>{},{}<<<".format(x,y))
-    if is_inside_rectangle(x, y, rectangle_coords):
-        print(f"사각형 내부 클릭! ({x}, {y})")
-    else :
-        print(f"사각형 외부 클릭! ({x}, {y})")
 
-def create_transparent_rectangle(canvas, x1, y1, x2, y2, color, alpha):
+    for img in canvas.image_store:
+        if is_inside_rectangle(x, y, img[1]):
+            if img[2] == '2번':
+                popup.open_popup()
+            print(f"{img[2]} 사각형 내부 클릭! ({x}, {y})")
+
+
+
+def create_transparent_rectangle(canvas, name, rect_coords, color, alpha):
+    # 좌표 추출
+    x1, y1, x2, y2 = rect_coords
     # 투명한 이미지를 생성합니다.
     width, height = int(x2 - x1), int(y2 - y1)
     image = Image.new("RGBA", (width, height), color + (int(alpha * 255),))
     tk_image = ImageTk.PhotoImage(image)
     
     # 캔버스에 이미지를 배치합니다.
-    canvas_image = canvas.create_image(x1, y1, anchor="nw", image=tk_image)
+    canvas.create_image(x1, y1, anchor="nw", image=tk_image)
     # 참조가 유지되도록 저장
-    canvas.image_store.append(tk_image)  # 참조 유지
+    canvas.image_store.append([tk_image,(x1, y1, x2, y2),name])  # 참조 유지
 
 def is_inside_rectangle(x, y, rect_coords):
     """
@@ -58,6 +65,7 @@ def on_mouse_move(event):
         print(f"마우스가 사각형 내부에 있습니다! ({mouse_x}, {mouse_y})")
     else:
         print(f"마우스가 사각형 바깥에 있습니다. ({mouse_x}, {mouse_y})")
+
 
 root = ttk.Window()
 root.title("LDO Resistor Calculator")
@@ -94,8 +102,10 @@ rectangle_coords = (105,65,135,95)
 
 canvas.create_image(image1.width()/2,image1.height()/2,image=image1)
 # canvas.create_polygon(229.0,38.0,247.0,38.0,226.0,62.0,243.0,64.0)
-create_transparent_rectangle(canvas,105,65,135,95,color=(255,0,0), alpha=0.5)
+create_transparent_rectangle(canvas, name="1번", rect_coords=(105,65,135,95), color=(255,0,0), alpha=0.5)
+create_transparent_rectangle(canvas, name="2번", rect_coords=(205,65,235,95), color=(255,0,0), alpha=0.5)
 
+print(canvas.image_store)
 # canvas.image_names = image1
 
 
