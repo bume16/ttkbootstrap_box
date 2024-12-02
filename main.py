@@ -1,4 +1,3 @@
-
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 from PIL import Image, ImageTk
@@ -25,10 +24,8 @@ def leftClicked(event):
     for img in canvas.image_store:
         if is_inside_rectangle(x, y, img[1]):
             if img[2] == '2번':
-                popup.open_popup()
+                popup.open_popup(root, 120,80)
             print(f"{img[2]} 사각형 내부 클릭! ({x}, {y})")
-
-
 
 def create_transparent_rectangle(canvas, name, rect_coords, color, alpha):
     # 좌표 추출
@@ -76,21 +73,20 @@ notebook = ttk.Notebook(root)
 notebook.pack(expand=True, fill="both")
 
 #첫 번째 프레임생성  
-frame1 = ttk.Frame(notebook, padding=10)
-notebook.add(frame1, text="LT3020EMS8")
+# frame1 = ttk.Frame(notebook, padding=10)
+# notebook.add(frame1, text="LT3020EMS8")
 
+# label1 = ttk.Label(frame1, image=image1, padding=4)
+# label1.pack()
+
+# 1번째 프레임생성  
+frame1 = ttk.Frame(notebook, padding=0)
+notebook.add(frame1, text="LT3020EMS8")
 
 rawImage = Image.open("./resource/images/LT3020EMS8_OPERATOR_PIC1.png")
 image1 = resizeImage(rawImage, ratio=0.8)
 
-label1 = ttk.Label(frame1, image=image1, padding=4)
-label1.pack()
-
-# 번째 프레임생성  
-frame2 = ttk.Frame(notebook, padding=0)
-notebook.add(frame2, text="TAB 2")
-
-canvas = ttk.Canvas(frame2, width=image1.width(), height=image1.height(), relief="solid", bd=1, background="red")
+canvas = ttk.Canvas(frame1, width=image1.width(), height=image1.height(), relief="solid", bd=1, background="red")
 # canvas.bind("<Motion>", on_mouse_move)
 canvas.bind("<Button-1>", leftClicked)
 
