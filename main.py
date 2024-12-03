@@ -23,8 +23,8 @@ def leftClicked(event):
 
     for img in canvas.image_store:
         if is_inside_rectangle(x, y, img[1]):
-            if img[2] == '2번':
-                popup.open_popup(root, 120,80)
+            # if img[2] == '2번':
+            popup.open_popup(root,img[2], 120,80)
             print(f"{img[2]} 사각형 내부 클릭! ({x}, {y})")
 
 def create_transparent_rectangle(canvas, name, rect_coords, color, alpha):
@@ -40,6 +40,13 @@ def create_transparent_rectangle(canvas, name, rect_coords, color, alpha):
     # 참조가 유지되도록 저장
     canvas.image_store.append([tk_image,(x1, y1, x2, y2),name])  # 참조 유지
 
+def create_fill_rectangle(canvas, rect_coords, color):
+    # 좌표 추출
+    x1, y1, x2, y2 = rect_coords
+    # 투명한 이미지를 생성합니다.
+    width, height = int(x2 - x1), int(y2 - y1)
+    canvas.create_rectangle(x1, y1, x2, y2, fill=color, outline=color)
+    
 def is_inside_rectangle(x, y, rect_coords):
     """
     마우스 좌표가 사각형 내부에 있는지 확인하는 함수.
@@ -55,18 +62,23 @@ def is_inside_rectangle(x, y, rect_coords):
     x1, y1, x2, y2 = rect_coords
     return x1 <= x <= x2 and y1 <= y <= y2
 
+def create_text(canvas, x, y, text, color, font, anchor):
+    canvas.create_text(x, y, text=text, fill=color, font=font, anchor=anchor)
+
 # 마우스 이벤트 핸들러
 def on_mouse_move(event):
     mouse_x, mouse_y = event.x, event.y
-    if is_inside_rectangle(mouse_x, mouse_y, rectangle_coords):
-        print(f"마우스가 사각형 내부에 있습니다! ({mouse_x}, {mouse_y})")
-    else:
-        print(f"마우스가 사각형 바깥에 있습니다. ({mouse_x}, {mouse_y})")
+    # if is_inside_rectangle(mouse_x, mouse_y, rectangle_coords):
+    #     print(f"마우스가 사각형 내부에 있습니다! ({mouse_x}, {mouse_y})")
+    # else:
+    #     print(f"마우스가 사각형 바깥에 있습니다. ({mouse_x}, {mouse_y})")
 
 
 root = ttk.Window()
 root.title("LDO Resistor Calculator")
 root.geometry("600x480")
+root.minsize(640,480)
+root.maxsize(640,480)
 
 #Notebook 위젯 생성
 notebook = ttk.Notebook(root)
@@ -94,17 +106,28 @@ canvas.pack(padx=0, pady=0)
 
 # 이미지 참조를 저장할 리스트
 canvas.image_store = []
-rectangle_coords = (105,65,135,95)
+click_rectangle_coords = [
+    {"name" :"Vin", "coord" : (105,68,135,95)},
+    {"name" :"Vout", "coord" : (520,35,565,60)},
+    {"name" :"R2", "coord" : (390,75,415,95)},
+]
 
 canvas.create_image(image1.width()/2,image1.height()/2,image=image1)
 # canvas.create_polygon(229.0,38.0,247.0,38.0,226.0,62.0,243.0,64.0)
-create_transparent_rectangle(canvas, name="1번", rect_coords=(105,65,135,95), color=(255,0,0), alpha=0.5)
-create_transparent_rectangle(canvas, name="2번", rect_coords=(205,65,235,95), color=(255,0,0), alpha=0.5)
+create_fill_rectangle(canvas, (390,150,410,170), "white")
+
+for click_rectangle in click_rectangle_coords:
+    create_transparent_rectangle(canvas, name=click_rectangle["name"], rect_coords=click_rectangle["coord"], color=(255,0,0), alpha=0.5)
 
 print(canvas.image_store)
-# canvas.image_names = image1
 
 
+
+
+font = ("Arial", 12)
+create_text(canvas, 10, 200, "Vin = 0.9V", color="red", font=font, anchor="w")
+create_text(canvas, 390, 140, "R1", color="black", font=font, anchor="w")
+create_text(canvas, 390, 160, "1.5㏀(Fixed)", color="black", font=font, anchor="w")
 
 
 # b1 = ttk.Button(root, text="Solid Button", bootstyle=SUCCESS)

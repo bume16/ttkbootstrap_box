@@ -23,7 +23,7 @@ def _focus_out_(e, entry, value):
         entry.configure(foreground="gray")  # 글자색을 회색으로
         entry.insert(0, entry.placeholder_text)  # placeholder 재삽입
 
-def open_popup(parent, width, height):
+def open_popup(parent, title, width, height):
     '''
     팝업 윈도우를 띄우는 메소드.
 
@@ -45,8 +45,13 @@ def open_popup(parent, width, height):
 
     # Create secondary (or popup) window.
     popup = ttk.Toplevel()
-    popup.title("POP-UP")
+    popup.title(title)
     popup.geometry(f"{width}x{height}+{x}+{y}")
+
+
+    labelTitleWidth = 40
+    labelTitle = ttk.Label(popup, text=f"{title} = ")
+    labelTitle.place(x=5, y=5, width=labelTitleWidth, height=30)
 
     # Create a text
     value = ttk.StringVar() 
@@ -56,8 +61,7 @@ def open_popup(parent, width, height):
     valueEntry.bind("<FocusIn>", lambda event : _focus_in_(event, valueEntry, value))
     valueEntry.bind("<FocusOut>", lambda event : _focus_out_(event, valueEntry, value))
     
-    
-    valueEntry.place(x=5, y=5, width=width-10, height=30)
+    valueEntry.place(x=labelTitleWidth+5, y=5, width=width/2, height=30)
 
     # Create a button to close (destroy) this window.
     button_close = ttk.Button(
