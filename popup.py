@@ -72,3 +72,8 @@ def open_popup(parent, title, width, height):
     btnWidth = 80
     btnX = (width-btnWidth)/2
     button_close.place(x=btnX, y=40, width=btnWidth)
+
+    # 팝업 창 닫힐 때까지 기다림
+    popup.wait_window()
+
+    return value.get()
