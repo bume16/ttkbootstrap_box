@@ -31,6 +31,14 @@ class Mainframe:
                 print(f"{img[2]} 사각형 내부 클릭! ({x}, {y})")
                 result = popup.open_popup(self.root,img[2], 120,80)
                 print(f"입력값 = {result}")
+
+                oldId = self.get_object_id(img[2])
+                print(f"old id = {oldId}")
+                # if oldId is not None : 
+                #     self.clear_canvas_obj(self.canvas, self.get_object_id(img[2]))
+
+                obj_id = self.create_box_text(self.canvas, img[1], f"{img[2]} = {result}")                
+                self.add_object_id(img[2], obj_id)
                 
     def create_transparent_rectangle(self, canvas, name, rect_coords, color, alpha):
         # 좌표 추출
@@ -67,8 +75,33 @@ class Mainframe:
         x1, y1, x2, y2 = rect_coords
         return x1 <= x <= x2 and y1 <= y <= y2
 
-    def create_text(self, canvas, x, y, text, color, font, anchor):
+    def calc_rectangle_center(self, rect_coords):
+        x1, y1, x2, y2 = rect_coords
+        return (x2-x1)/2 + x1, (y2-y1)/2 + y1
+
+    def create_only_text(self, canvas, x, y, text, color="black", font=("Arial", 12), anchor="w"):
         canvas.create_text(x, y, text=text, fill=color, font=font, anchor=anchor)
+
+    def create_box_text(self, canvas, box, text, fcolor="black", bcolor="white", font=("Arial", 12), anchor="center"):
+        self.create_fill_rectangle(canvas, box, bcolor)
+        x, y = self.calc_rectangle_center(box)
+        print(f"{x} {y}")
+        canvas.create_text(x, y, text=text, fill=fcolor, font=font, anchor=anchor)
+    
+    def clear_text_and_images(self, canvas):
+        # Canvas에 있는 모든 객체의 ID를 가져옵니다.
+        for item in canvas.find_all():  
+            # 객체의 타입을 확인합니다.
+            item_type = canvas.type(item)
+            print(item_type)
+            # 타입이 text 또는 image인 경우 해당 객체를 삭제합니다.
+            # if item_type in ('text', 'image'):
+            if item_type in ('text'):
+                canvas.delete(item)
+    def clear_canvas_obj(self, canvas, id):
+        if id is None:
+            canvas.delete(id)
+
 
     # 마우스 이벤트 핸들러
     def on_mouse_move(self, event):
@@ -78,6 +111,13 @@ class Mainframe:
         # else:
         #     print(f"마우스가 사각형 바깥에 있습니다. ({mouse_x}, {mouse_y})")
 
+    def add_object_id(self, name, obj_id):
+        self.object_ids.update({name: obj_id})
+        print(self.object_ids)
+
+    def get_object_id(self, name):
+        return self.object_ids.get(name)
+
     def run(self):
 
         self.root = ttk.Window()
@@ -86,6 +126,9 @@ class Mainframe:
         root.geometry("600x480")
         root.minsize(640,480)
         root.maxsize(640,480)
+
+        # 객체 ID를 저장할 리스트
+        self.object_ids = {}
 
         #Notebook 위젯 생성
         notebook = ttk.Notebook(root)
@@ -114,26 +157,27 @@ class Mainframe:
 
         # 이미지 참조를 저장할 리스트
         canvas.image_store = []
-        click_rectangle_coords = [
+        self.click_rectangle_coords = [
             {"name" :"Vin", "coord" : (105,68,135,95)},
             {"name" :"Vout", "coord" : (520,35,565,60)},
             {"name" :"R2", "coord" : (390,75,415,95)},
         ]
 
         canvas.create_image(image1.width()/2,image1.height()/2,image=image1)
+
         # canvas.create_polygon(229.0,38.0,247.0,38.0,226.0,62.0,243.0,64.0)
         self.create_fill_rectangle(canvas, (390,150,410,170), "white")
 
-        for click_rectangle in click_rectangle_coords:
+        for click_rectangle in self.click_rectangle_coords:
             self.create_transparent_rectangle(canvas, name=click_rectangle["name"], rect_coords=click_rectangle["coord"], color=(255,0,0), alpha=0.5)
 
         print(canvas.image_store)
 
 
         font = ("Arial", 12)
-        self.create_text(canvas, 10, 200, "Vin = 0.9V", color="red", font=font, anchor="w")
-        self.create_text(canvas, 390, 140, "R1", color="black", font=font, anchor="w")
-        self.create_text(canvas, 390, 160, "1.5㏀(Fixed)", color="black", font=font, anchor="w")
+        # self.create_text(canvas, 10, 200, "Vin = 0.9V", color="red", font=font, anchor="w")
+        self.create_only_text(canvas, 390, 140, "R1", color="black", font=font, anchor="w")
+        self.create_only_text(canvas, 390, 160, "1.5㏀(Fixed)", color="black", font=font, anchor="w")
 
         # b1 = ttk.Button(root, text="Solid Button", bootstyle=SUCCESS)
         # b1.pack(side=LEFT, padx=5, pady=10)
